@@ -1,10 +1,10 @@
-import anthropic
+from google import genai
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def review_code(diff):
@@ -19,17 +19,16 @@ Diff:
 """
 
     try:
-        print("Running AI review via Claude API...")
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
+        print("Running AI review via Gemini...")
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=prompt
         )
-        print("Claude review complete.")
-        return response.content[0].text
+        print("Gemini review complete.")
+        return response.text
 
     except Exception as e:
-        print("Claude API error:", e)
+        print("Gemini API error:", e)
         return """
 AI review unavailable.
 

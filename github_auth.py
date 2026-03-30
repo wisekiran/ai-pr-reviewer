@@ -7,9 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 APP_ID = os.getenv("GITHUB_APP_ID")
-
-with open("private-key.pem", "r") as f:
-    PRIVATE_KEY = f.read()
+PRIVATE_KEY = os.getenv("GITHUB_PRIVATE_KEY").replace("\\n", "\n")
 
 
 def generate_jwt():
