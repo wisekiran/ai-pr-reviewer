@@ -1,106 +1,43 @@
-# AI PR Reviewer
+# AI PR Reviewer Bot
 
-An automated pull request reviewer powered by a local LLM (Llama 3.2 via Ollama). When a new PR is opened in your GitHub repository, this bot fetches the diff, runs it through an AI model, and posts a code review comment automatically — all running on your own machine, for free.
+An automated pull request reviewer powered by Google Gemini AI. When a new PR is opened, the bot instantly fetches the diff, runs it through an AI model, and posts a detailed code review comment — fully automated, deployed on the cloud.
+
+## 🚀 Live Demo
+
+Want to see it in action? Open a pull request on the demo repository and the bot will automatically review your code within seconds:
+
+**👉 [Open a PR to test the bot](https://github.com/wisekiran/demo-ai-pr-reviewer)**
+
+> Just create any file or make any change, open a PR, and watch the bot comment.
 
 ---
 
 ## How It Works
 
 1. A pull request is opened on GitHub
-2. GitHub sends a webhook event to this app
-3. The app fetches the PR diff using the GitHub API
-4. The diff is sent to Llama 3.2 running locally via Ollama
-5. The AI review is posted as a comment on the PR
+2. GitHub sends a webhook event to the deployed server
+3. The app authenticates via GitHub App and fetches the PR diff
+4. The diff is sent to Google Gemini AI for analysis
+5. The AI-generated review is posted as a comment on the PR — automatically
 
 ---
 
 ## Tech Stack
 
 - **Python** + **Flask** — webhook server
-- **Ollama** + **Llama 3.2** — local AI model for code review (free, no API key needed)
+- **Google Gemini API** — AI model for code review
 - **GitHub Apps API** — authentication and posting comments
-- **ngrok** — exposes local server to GitHub webhooks
+- **Render** — cloud deployment (always on, no local setup needed)
 
 ---
 
-## Prerequisites
+## Features
 
-- Python 3.8+
-- [Ollama](https://ollama.com) installed
-- [ngrok](https://ngrok.com) installed
-- A GitHub App created and installed on your repository
-
----
-
-## Setup
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-username/ai-pr-reviewer.git
-cd ai-pr-reviewer
-```
-
-### 2. Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Pull the AI model
-
-```bash
-ollama pull llama3.2
-```
-
-### 4. Create a GitHub App
-
-- Go to **https://github.com/settings/apps** → New GitHub App
-- Set the webhook URL to your ngrok URL + `/webhook` (e.g. `https://your-ngrok-url.ngrok-free.app/webhook`)
-- Set a webhook secret (any string, e.g. `supersecret123`)
-- Under **Permissions**, set:
-  - **Issues** → Read and Write
-  - **Pull requests** → Read-only
-- Generate and download a **private key** (.pem file) — place it in the project folder as `private-key.pem`
-- Install the app on your repository
-
-### 5. Configure environment variables
-
-Copy `.env` and fill in your values:
-
-```
-GITHUB_APP_ID=your_github_app_id_here
-GITHUB_WEBHOOK_SECRET=your_webhook_secret_here
-```
-
----
-
-## Running the App
-
-Open **3 terminals** and run one command in each:
-
-**Terminal 1 — Start Ollama**
-```bash
-ollama serve
-```
-
-**Terminal 2 — Start the Flask server**
-```bash
-python app.py
-```
-
-**Terminal 3 — Expose to the internet via ngrok**
-```bash
-ngrok http 5000
-```
-
-Copy the ngrok forwarding URL (e.g. `https://xxxx.ngrok-free.app`) and make sure it matches the webhook URL in your GitHub App settings.
-
----
-
-## Usage
-
-Open a new pull request on your GitHub repository. Within a few seconds, the bot will post an automated code review comment on the PR.
+- ✅ Automatically triggers on every new pull request
+- ✅ Identifies bugs, security issues, and performance concerns
+- ✅ Flags missing tests and input validation gaps
+- ✅ Posts review as a native GitHub PR comment
+- ✅ Deployed 24/7 on the cloud — no local server needed
 
 ---
 
@@ -109,19 +46,50 @@ Open a new pull request on your GitHub repository. Within a few seconds, the bot
 ```
 ai-pr-reviewer/
 ├── app.py              # Flask webhook server
-├── review_engine.py    # AI review logic (Ollama/Llama 3.2)
+├── review_engine.py    # AI review logic (Google Gemini)
 ├── github_utils.py     # Fetch PR diff, post comments
 ├── github_auth.py      # GitHub App JWT authentication
-├── private-key.pem     # GitHub App private key (not committed)
-├── .env                # Environment variables (not committed)
 ├── requirements.txt    # Python dependencies
+├── render.yaml         # Render deployment config
 └── README.md
 ```
 
 ---
 
-## Notes
+## Local Setup
 
-- `private-key.pem` and `.env` should never be committed to GitHub — add them to `.gitignore`
-- The app only reviews PRs with `action: opened` — reopened or updated PRs are ignored
-- Ollama must be running before starting the Flask server
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/wisekiran/ai-pr-reviewer.git
+cd ai-pr-reviewer
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Set up environment variables
+
+Create a `.env` file:
+
+```
+GITHUB_APP_ID=your_github_app_id
+GITHUB_WEBHOOK_SECRET=your_webhook_secret
+GEMINI_API_KEY=your_gemini_api_key
+GITHUB_PRIVATE_KEY=your_private_key_contents
+```
+
+### 4. Run the server
+
+```bash
+python app.py
+```
+
+---
+
+## Deployment
+
+This app is deployed on [Render](https://render.com) using the included `render.yaml` config. The `GITHUB_PRIVATE_KEY`, `GEMINI_API_KEY`, and other secrets are stored as environment variables in the Render dashboard.
