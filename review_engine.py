@@ -1,7 +1,10 @@
-import requests
+import anthropic
+import os
+from dotenv import load_dotenv
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3.2"  # Free, runs locally via Ollama
+load_dotenv()
+
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 
 def review_code(diff):
@@ -16,19 +19,19 @@ Diff:
 """
 
     try:
-        response = requests.post(OLLAMA_URL, json={
-            "model": MODEL,
-            "prompt": prompt,
-            "stream": False
-        }, timeout=60)
-
-        response.raise_for_status()
-        return response.json()["response"]
+        print("Running AI review via Claude API...")
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        print("Claude review complete.")
+        return response.content[0].text
 
     except Exception as e:
-        print("AI error:", e)
+        print("Claude API error:", e)
         return """
-AI review unavailable. Make sure Ollama is running: `ollama serve`
+AI review unavailable.
 
 Basic automated review:
 - Check for missing error handling
